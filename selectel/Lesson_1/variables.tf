@@ -59,6 +59,5 @@ variable "openstack_url" {
 # 
 
 resource "random_password" "my_serviceuser_1_password" {
-  length = 20
-  description = "Сгенерируем случайный пароль для нашего будущего сервисного пользователя my_serviceuser_1"
+  length = 20 # "Сгенерируем случайный пароль для нашего будущего сервисного пользователя my_serviceuser_1 длинной в 20 символов"
 }
