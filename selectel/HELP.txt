@@ -1,0 +1,38 @@
+
+# -------------------------------------------------------
+# Изучаю Terraform на практике в облаке компании Selectel
+#
+# https://docs.selectel.ru/terraform/
+#
+# -------------------------------------------------------
+
+
+
+Для использования terraform в Selectel нужно объявить следующие переменные окружения:
+
+export TF_VAR_selectel_domain_name="123456"
+export TF_VAR_selectel_username="username"
+export TF_VAR_selectel_password="password"
+export TF_VAR_selectel_region="ru-9"
+export TF_VAR_selectel_url="https://cloud.api.selcloud.ru/identity/v3/"
+export TF_VAR_openstack_domain_name="123456"
+export TF_VAR_openstack_region="ru-9"
+export TF_VAR_openstack_url="https://cloud.api.selcloud.ru/identity/v3/"
+
+
+
+Если из-за каких-либо ограничений нет доступа до terraform.io, создайте файл ~/.terraformrc , добавьте в него такой текст и сохраните его:
+
+provider_installation {
+  network_mirror {
+    url     = "https://tf-proxy.selectel.ru/mirror/v1/"
+    include = ["registry.terraform.io/*/*"]
+  }
+  direct {
+    exclude = ["registry.terraform.io/*/*"]
+  }
+}
+
+
+
+1) Lesson 1 - первый пример конфигурационных файлов (просто создаем тестовый проект и тестового пользователя в облаке Selectel)
