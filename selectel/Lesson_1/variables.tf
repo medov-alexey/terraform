@@ -9,13 +9,13 @@ variable "selectel_domain_name" {
 }
 
 variable "selectel_username" {
-  description = "Имя основного пользователя в Selectel"
+  description = "Имя основного сервисного пользователя в Selectel (должен быть создан вручную через личный кабинет Selectel, можно назвать как угодно, например my_main_service_user)"
   type        = string
   sensitive   = true
 }
 
 variable "selectel_password" {
-  description = "Пароль основного пользователя в Selectel"
+  description = "Пароль основного сервисного пользователя в Selectel"
   type        = string
   sensitive   = true
 }
