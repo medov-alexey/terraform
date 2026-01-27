@@ -59,5 +59,5 @@ variable "openstack_url" {
 # 
 
 resource "random_password" "my_serviceuser_1_password" {
-  length = 16
+  length = 20
 }
