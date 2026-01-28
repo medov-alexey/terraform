@@ -32,7 +32,3 @@ provider_installation {
     exclude = ["registry.terraform.io/*/*"]
   }
 }
-
-
-
-Lesson 1 - первый пример конфигурационных файлов (просто создаем тестовый проект и тестового пользователя в облаке Selectel)
