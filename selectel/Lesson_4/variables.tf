@@ -44,6 +44,12 @@ variable "selectel_project_id" {
   sensitive   = true
 }
 
+variable "selectel_user_id" {
+  description = "id пользователя из под которого будем выполнять запросы в Selectel API"
+  type        = string
+  default     = "xxxxx"
+}
+
 #
 # Переменные для Openstack провайдера
 #
