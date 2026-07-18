@@ -48,3 +48,4 @@ export TF_VAR_openstack_region="ru-9"
 
 # Где переменная TF_VAR_selectel_user_id должна содержать id пользователя указанного в переменной TF_VAR_selectel_username
 # Значения для переменной TF_VAR_selectel_project_id можно посмотреть в личном аккаунте пользователя Selectel.
+# В переменную TF_VAR_selectel_domain_name нужно прописывать номер владельца аккаунта в Selectel 
