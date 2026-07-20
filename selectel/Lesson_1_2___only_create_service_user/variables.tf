@@ -55,9 +55,25 @@ variable "openstack_url" {
 }
 
 #
-# Переменные для проекта
+# Дополнительные переменные
 # 
 
-resource "random_password" "my_serviceuser_1_password" {
-  length = 20 # "Сгенерируем случайный пароль для нашего будущего сервисного пользователя my_serviceuser_1 длинной в 20 символов"
+variable "set_manual_project_id" {
+  description = "Укажите ID существующего проекта в вашем личном аккаунте Selectel в котором будем работать"
+  type        = string
 }
+# если переменная set_manual_project_id не будет задана в переменных окружения, или в default, то
+# потребуется ввести ее при запуске команды terraform apply (будет выведен запрос на ввод)
+
+
+resource "random_password" "my_serviceuser_password" {
+  length           = 20    # Сгенерируем случайный пароль для нашего будущего сервисного пользователя my_serviceuser длинной в 20 символов
+  special          = true  # Обязательно использовать спецсимволы (@, #, $ и т.д.)
+  upper            = true  # Обязательно заглавные буквы
+  lower            = true  # Обязательно строчные буквы
+  numeric          = true  # Обязательно цифры
+  override_special = "!_-%" # Selectel иногда не любит слишком экзотические символы, лучше ограничить этим набором
+}
+# Для просмотра сгенерированного нами пароля для сервисного пользователя введите эту команду:
+#
+# terraform output -raw my_serviceuser_password 

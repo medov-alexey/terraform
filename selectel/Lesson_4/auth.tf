@@ -1,3 +1,5 @@
+# В этом файле перечисляем необходимые данные для авторизации в определенном провайдере
+
 provider "selectel" {
   domain_name = var.selectel_domain_name
   username    = var.selectel_username
