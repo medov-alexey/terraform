@@ -16,3 +16,9 @@ Error: error creating project: Expected HTTP response code [200] when accessing 
 3. terraform apply
 
 4. terraform destroy
+
+Для просмотра пароля создаваемого в рамках обучения сервисного пользователя нужно использовать команду:
+
+terraform output -raw my_serviceuser_1_password
+
+Так как мы в файле variables.tf сделали так, чтобы при создании пароля для пользователя в выводе логов по умолчанию он не отображался
