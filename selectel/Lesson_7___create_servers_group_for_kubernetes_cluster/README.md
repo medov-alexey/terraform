@@ -32,16 +32,18 @@ terraform apply
 ### Шаг 3. Скачивание и запуск Kubespray
 1. Клонируйте официальный репозиторий Kubespray прямо на Bastion Host:
    ```bash
-   git clone https://github.com/kubernetes-sigs/kubespray.git
-   cd kubespray
-   python3.11 -m venv venv
-   source venv/bin/activate
-   pip install --upgrade pip setuptools wheel
-   pip install -r requirements.txt
-   ansible-playbook --version
+   git clone https://github.com/kubernetes-sigs/kubespray.git && \
+   cd kubespray&& \
+   python3.11 -m venv venv && \
+   source venv/bin/activate && \
+   pip install --upgrade pip setuptools wheel && \
+   pip install -r requirements.txt && \
+   ansible-playbook --version && \
    cp -rfp inventory/sample inventory/mycluster
    ```
 2. Откройте файл `inventory.ini` внутри папки `inventory/mycluster/`, вписав туда внутренние IP-адреса нод (`10.10.0.x`).
+
+nano inventory/mycluster/inventory.ini 
 
 Пример заполненного файла:
 ```ini
@@ -88,17 +90,84 @@ calico_rr
 [all:vars]
 # Указываем, что подключаться к серверам нужно под пользователем root
 ansible_user=root
-
-# МАГИЯ BASTION: Если вы запускаете Kubespray со своего ЛОКАЛЬНОГО компьютера,
-# эта строка заставит Ansible прозрачно ходить на все внутренние ноды СКВОЗЬ публичный IP бастиона.
-# Замените 95.213.x.x на реальный внешний IP вашего k8s-bastion.
-ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p -q root@95.213.x.x"'
 ```
 
-3. Запустите деплой кластера локально изнутри сети Selectel:
+3. Кладем свой приватный ssh ключ в файл ~/.ssh/id_rsa и затем выполняем следующие команды:
    ```bash
-   ansible-playbook -i inventory/mycluster/inventory.ini --become cluster.yml
+   chmod 400 ~/.ssh/id_rsa && eval $(ssh-agent -s) && ssh-add ~/.ssh/id_rsa
    ```
+
+   p.s. если запросит пароль от вашего приватного ssh ключа введите его и нажмите enter
+
+4. Запустите деплой кластера локально изнутри сети Selectel (с бастион ноды):
+   ```bash
+   ansible all -i inventory/mycluster/inventory.ini -m shell -a "apt-get clean && apt-get update" --become && \
+   ansible-playbook -i inventory/mycluster/inventory.ini --become -e "apt_cache_valid_time=0" cluster.yml
+   ```
+
+5. Зайдите по SSH на первую мастер ноду кубера и выполните эти команды, чтобы убедится что все работает нормально (все должно быть Ready или Running):
+   ```bash
+   kubectl get nodes -o wide; echo; kubectl get pods -A 
+   ```
+
+6. Создаем тестовое приложение (Nginx)
+
+nano nginx-test.yaml
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: my-web-app
+spec:
+  replicas: 3 # Запустим ровно 3 копии приложения для надежности
+  selector:
+    matchLabels:
+      app: my-web-app
+  template:
+    metadata:
+      labels:
+        app: my-web-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25 # Скачиваем официальный образ веб-сервера
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: NodePort # Этот тип откроет случайный порт на всех нодах для доступа снаружи
+  selector:
+    app: my-web-app
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080 # Жестко зафиксируем внешний порт для тестов
+
+```
+
+7. Деплоим его в кластер
+```bash
+kubectl apply -f nginx-test.yaml && sleep 10
+```
+
+8. Проверяем что все поднялось
+```bash
+kubectl get pods -o wide ; kubectl get svc
+```
+
+9. Делаем Curl запрос к ip адресу любой из воркер нод, к порту 30080 чтобы убедится что все работает
+Например:
+```bash
+curl http://10.10.0.225:30080
+```
+
+в ответ должно вернутся типичное сообщение от Nginx, типа "Thank you for using nginx".
 
 
 ## 🗑 Полное уничтожение инфраструктуры
